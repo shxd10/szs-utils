@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::binary::*;
 
 pub struct Yaz0 {

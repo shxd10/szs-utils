@@ -2,12 +2,6 @@ mod szs;
 mod binary;
 mod kmp;
 
-struct Checkpoint {
-    x: f32,
-    y: f32,
-    
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

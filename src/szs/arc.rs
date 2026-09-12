@@ -1,4 +1,4 @@
-use std::string;
+#![allow(dead_code)]
 
 use crate::binary::*;
 

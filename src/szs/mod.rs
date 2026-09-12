@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod yaz0;
 pub mod arc;
 

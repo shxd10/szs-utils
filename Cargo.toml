@@ -2,5 +2,7 @@
 name = "szs-utils"
 version = "0.1.0"
 edition = "2024"
+description = "Lightweight dependency-less parsers for Mario Kart Wii."
+license = "MIT OR Apache-2.0"
 
 [dependencies]

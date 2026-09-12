@@ -1,7 +1,6 @@
-// https://github.com/Hibyehello/brres_parser/blob/master/src/brres/common.rs
+#![allow(dead_code)]
 
 use std::fmt;
-use std::mem;
 use std::panic::Location;
 
 // custom u24 for szs/arc.rs
