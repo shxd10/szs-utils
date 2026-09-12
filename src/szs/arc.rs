@@ -233,3 +233,20 @@ impl Node {
         Ok(Node { node_type, filename_offset, data_offset_or_parent_idx, size_or_skip_idx })
     }
 }
+
+impl DirectoryEntry {
+    pub fn find(&self, name: &str) -> Option<&FileEntry> {
+        for child in &self.children {
+            match child {
+                Entry::File(file) if file.name == name => return Some(file),
+                Entry::Directory(subdir) => {
+                    if let Some(found) = subdir.find(name) {
+                        return Some(found);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+}

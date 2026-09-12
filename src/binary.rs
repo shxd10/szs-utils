@@ -141,15 +141,26 @@ impl FromBytes for bool {
     }
 }
 
-impl FromBytes for [u8; 4] {
+impl<const N: usize> FromBytes for [u8; N] {
     #[track_caller]
     fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String> {
-        data.get(offset..offset + 4)
+        data.get(offset..offset + N)
             .and_then(|s| s.try_into().ok())
             .ok_or_else(|| format!(
-                "Unable to get 4 bytes at offset {:#02x}: caused by {}",
-                offset, Location::caller()
+                "Unable to get {} bytes at offset {:#02x}: caused by {}",
+                N, offset, Location::caller()
             ))
+    }
+}
+
+impl<const N: usize> FromBytes for [u32; N] {
+    #[track_caller]
+    fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String> {
+        let mut result = [0u32; N];
+        for i in 0..N {
+            result[i] = read(data, offset + i * 4)?;
+        }
+        Ok(result)
     }
 }
 
@@ -249,6 +260,46 @@ impl FromBytes for Vec3 {
             x: read(data, offset)?,
             y: read(data, offset + 4)?,
             z: read(data, offset + 8)?,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Vec2 {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl Vec2 {
+    pub fn new(x: f32, y: f32) -> Self {
+        Vec2 { x, y }
+    }
+
+    pub fn raw_new(data: &[u8; 8]) -> Result<Self, String> {
+        let x_slice = data.get(0x0..0x4).ok_or("Failed to get X slice")?;
+        let y_slice = data.get(0x4..0x8).ok_or("Failed to get Y slice")?;
+
+        let x = f32::from_be_bytes(
+            x_slice
+                .try_into()
+                .map_err(|_| "Vec3: Failed to convert X bytes")?,
+        );
+        let y = f32::from_be_bytes(
+            y_slice
+                .try_into()
+                .map_err(|_| "Vec3: Failed to convert Y bytes")?,
+        );
+
+        Ok(Vec2 { x, y })
+    }
+}
+
+impl FromBytes for Vec2 {
+    #[track_caller]
+    fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String> {
+        Ok(Vec2 {
+            x: read(data, offset)?,
+            y: read(data, offset + 4)?,
         })
     }
 }
