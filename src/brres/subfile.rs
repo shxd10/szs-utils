@@ -2,7 +2,7 @@ use crate::binary::*;
 use crate::brres::{
     RawBrres,
     index_group::IndexHeader,
-    mdl0::{vertices::Vertices, *},
+    mdl0::{normals::Normals, vertices::Vertices, *},
     tex0::TEX0,
 };
 use std::fmt;
@@ -93,10 +93,16 @@ impl SubFile {
             brres,
             self.header.file_off + self.header.section_offsets[2] as usize,
         )?;
+        let mut norms_index_group = IndexHeader::new(
+            brres,
+            self.header.file_off + self.header.section_offsets[3] as usize,
+        )?;
 
         let mut vertices = Vertices::new(verts_index_group.num_group);
+        let mut normals = Normals::new(norms_index_group.num_group);
 
         verts_index_group.root.get_data(brres, &mut vertices)?;
+        norms_index_group.root.get_data(brres, &mut normals)?;
 
         Ok(())
     }

@@ -25,10 +25,10 @@ impl<'a> RawBrres<'a> {
 }
 
 pub struct Brres {
-    file_header: Option<FileHeader>,
-    root_header: Option<RootHeader>,
-    root_index: Option<IndexHeader>,
-    subfiles: Vec<SubFile>,
+    pub file_header: Option<FileHeader>,
+    pub root_header: Option<RootHeader>,
+    pub root_index: Option<IndexHeader>,
+    pub subfiles: Vec<SubFile>,
 }
 
 impl FromIndexGroup for Brres {
@@ -43,7 +43,7 @@ impl FromIndexGroup for Brres {
     }
 }
 
-struct FileHeader {
+pub struct FileHeader {
     magic: String,
     byte_order: Endian,
     file_size: u32,
@@ -82,7 +82,7 @@ impl FileHeader {
     }
 }
 
-struct RootHeader {
+pub struct RootHeader {
     magic: String,
     len_sections: u32,
     offset: usize,
@@ -106,7 +106,7 @@ impl RootHeader {
     }
 }
 
-pub fn parse_file(file: &str) -> std::io::Result<()> {
+pub fn parse(file: &str) -> std::io::Result<Brres> {
     let data = fs::read(file)?;
 
     let brres_file = RawBrres::new(&data);
@@ -140,8 +140,6 @@ pub fn parse_file(file: &str) -> std::io::Result<()> {
     let mut index_header =
         IndexHeader::new(brres_file, root_header.offset + 0x8).map_err(std::io::Error::other)?;
 
-    index_header.root.print_entry_names();
-
     index_header
         .root
         .get_data(brres_file, &mut brres)
@@ -151,5 +149,11 @@ pub fn parse_file(file: &str) -> std::io::Result<()> {
     brres.root_header = Some(root_header);
     brres.root_index = Some(index_header);
 
-    Ok(())
+    for subfile in brres.subfiles.iter_mut() {
+        subfile
+            .generate_subfile(brres_file)
+            .map_err(|e| std::io::Error::other(e))?;
+    }
+
+    Ok(brres)
 }

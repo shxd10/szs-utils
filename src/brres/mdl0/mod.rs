@@ -1,3 +1,4 @@
+pub mod normals;
 pub mod vertices;
 use crate::binary::*;
 use crate::brres::RawBrres;
