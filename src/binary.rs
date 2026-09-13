@@ -19,7 +19,6 @@ impl u24 {
     }
 }
 
-
 pub trait FromBytes: Sized {
     #[track_caller]
     fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String>;
@@ -35,7 +34,6 @@ pub struct AsciiString {
     pub length: usize,
 }
 
-
 impl FromBytes for VariableString {
     #[track_caller]
     fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String> {
@@ -43,12 +41,10 @@ impl FromBytes for VariableString {
             "Failed to get 0x4 bytes. caused by {}",
             Location::caller()
         ))?;
-        let len = u32::from_be_bytes(slice.try_into().map_err(|_| {
-            format!(
-                "Unable to convert Slice: caused by {}",
-                Location::caller()
-            )
-        })?) as usize;
+        let len =
+            u32::from_be_bytes(slice.try_into().map_err(|_| {
+                format!("Unable to convert Slice: caused by {}", Location::caller())
+            })?) as usize;
         slice = data.get(offset..offset + len).ok_or(format!(
             "Failed to get {:#02x} bytes. caused by {}",
             len,
@@ -63,6 +59,12 @@ impl FromBytes for VariableString {
             })?,
             length: len,
         })
+    }
+}
+
+impl fmt::Display for VariableString {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.string)
     }
 }
 
@@ -145,10 +147,14 @@ impl<const N: usize> FromBytes for [u8; N] {
     fn from_bytes(data: &[u8], offset: usize) -> Result<Self, String> {
         data.get(offset..offset + N)
             .and_then(|s| s.try_into().ok())
-            .ok_or_else(|| format!(
-                "Unable to get {} bytes at offset {:#02x}: caused by {}",
-                N, offset, Location::caller()
-            ))
+            .ok_or_else(|| {
+                format!(
+                    "Unable to get {} bytes at offset {:#02x}: caused by {}",
+                    N,
+                    offset,
+                    Location::caller()
+                )
+            })
     }
 }
 

@@ -1,6 +1,7 @@
-mod szs;
 mod binary;
+mod brres;
 mod kmp;
+mod szs;
 
 #[cfg(test)]
 mod tests {
@@ -12,7 +13,10 @@ mod tests {
         let file = kmp::Kmp::parse("course.kmp")?;
         for entry in file.ckpt.entries {
             if entry.cp_type == kmp::sections::CpType::KeyCheckpoint {
-                println!("Left: <{}, {}>, Right: <{}, {}>", entry.cp_left.x, entry.cp_left.y, entry.cp_right.x, entry.cp_right.y);
+                println!(
+                    "Left: <{}, {}>, Right: <{}, {}>",
+                    entry.cp_left.x, entry.cp_left.y, entry.cp_right.x, entry.cp_right.y
+                );
             }
         }
 
