@@ -1,25 +1,38 @@
-mod binary;
-mod brres;
-mod kmp;
-mod szs;
+pub mod binary;
+pub mod brres;
+pub mod kmp;
+pub mod szs;
+pub mod kcl;
+
+const FILE_PATH: &str = "beginner_course.szs";
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::szs::arc::{DirectoryEntry, Entry};
+    use szs::*;
+    use kmp::*;
+    use kcl::*;
 
     #[test]
-    fn test() -> Result<(), String> {
-        let file = kmp::Kmp::parse("course.kmp")?;
-        for entry in file.ckpt.entries {
-            if entry.cp_type == kmp::sections::CpType::KeyCheckpoint {
-                println!(
-                    "Left: <{}, {}>, Right: <{}, {}>",
-                    entry.cp_left.x, entry.cp_left.y, entry.cp_right.x, entry.cp_right.y
-                );
-            }
-        }
+    fn szs() -> Result<(), String> {
+        let file = szs::parse(FILE_PATH)?;
+        
+        Ok(())
+    }
 
+    #[test]
+    fn kmp() -> Result<(), String> {
+        let file = Kmp::from_szs(FILE_PATH)?;
+        for entry in file.stgi.entries {
+            println!("Lap Count: {}", entry.lap_count)
+        }
+        Ok(())
+    }
+    
+    #[test]
+    fn kcl() -> Result<(), String> {
+        let kcl = Kcl::from_szs(FILE_PATH)?;
+        std::fs::write("course.obj", kcl.to_obj()).unwrap();
         Ok(())
     }
 

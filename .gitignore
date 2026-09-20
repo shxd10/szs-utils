@@ -4,3 +4,5 @@
 *.kmp
 *.brres
 *.d
+*.obj
+*.mtl

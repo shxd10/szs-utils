@@ -3,7 +3,7 @@
 pub mod sections;
 use sections::*;
 
-use crate::binary::*;
+use crate::{binary::*, szs};
 
 // Inspired from KMPeek parsing.
 
@@ -97,10 +97,10 @@ impl Section<Poti> {
 impl Kmp {
     pub fn parse(path: &str) -> Result<Self, String> {
         let data = std::fs::read(path).map_err(|e| e.to_string())?;
-        Self::parse_from_data(&data)
+        Self::parse_raw(&data)
     }
 
-    pub fn parse_from_data(data: &[u8]) -> Result<Self, String> {
+    pub fn parse_raw(data: &[u8]) -> Result<Self, String> {
         let header = Header::parse(data)?;
         let header_length = header.header_length as usize;
         let offsets: [u32; 15] = read(data, 0x10)?;
@@ -168,5 +168,12 @@ impl Kmp {
             mspt: mspt.ok_or("missing MSPT section")?,
             stgi: stgi.ok_or("missing STGI section")?,
         })
+    }
+
+    pub fn from_szs(path: &str) -> Result<Self, String> {
+        let szs = szs::parse(path)?;
+        let kmp = szs.root.find("course.kmp").ok_or("course.kmp not found in SZS")?;
+        let data = kmp.data.as_slice();
+        Self::parse_raw(data)
     }
 }

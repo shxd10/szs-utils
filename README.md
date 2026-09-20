@@ -1,9 +1,11 @@
 Lightweight dependency-less parsers for Mario Kart Wii.
-| File     | Read | Write |
-| -------- | ---- | ----- |
-| .szs (yaz0 + arc)     | Yes  | No   |
-| .kmp     | Yes  | No   |
-| .kcl     | No  | No   |
-| .brres   | Partial  | No   |
+| File | Read | Write |
+| - | - | - |
+| SZS | Yes  | No |
+| KMP | Yes  | No |
+| KCL | Yes  | No |
+| BRRES | WIP | No |
+
+Made mostly for MKWii Studio.
 
 Check the README in the source folders for more information and examples

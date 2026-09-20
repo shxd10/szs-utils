@@ -205,7 +205,6 @@ impl Header {
     pub fn new(data: &[u8], offset: usize) -> Result<Self, String> {
         
         let magic: u32 = read(data, offset)?;
-        println!("magic: {:x}", magic);
         let first_node_offset: i32 = read(data, offset + 0x4)?;
         let nodes_size: i32 = read(data, offset + 0x8)?;
         let data_offset: i32 = read(data, offset + 0xC)?;

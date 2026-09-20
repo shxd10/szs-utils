@@ -2,6 +2,7 @@
 
 use std::fmt;
 use std::panic::Location;
+use std::ops::{Add, Mul, Sub};
 
 // custom u24 for szs/arc.rs
 
@@ -222,11 +223,11 @@ macro_rules! impl_primitive_FromBytes {
 impl_one_byte_FromBytes!(u8, i8);
 impl_primitive_FromBytes!(u16, i16, u32, i32, u64, i64, f32, f64);
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Vec3 {
-    x: f32,
-    y: f32,
-    z: f32,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl Vec3 {
@@ -256,6 +257,53 @@ impl Vec3 {
         );
 
         Ok(Vec3 { x, y, z })
+    }
+
+    pub fn section(data: &[u8], start: usize, end: usize) -> Result<Vec<Vec3>, String> {
+        let mut out = Vec::with_capacity(end.saturating_sub(start) / 12);
+        let mut off = start;
+        while off + 12 <= end {
+            out.push(read(data, off)?);
+            off += 12;
+        }
+        Ok(out)
+    }
+
+    pub fn dot(self, o: Vec3) -> f32 {
+        self.x * o.x + self.y * o.y + self.z * o.z
+    }
+
+    pub fn cross(self, o: Vec3) -> Vec3 {
+        Vec3::new(
+            self.y * o.z - self.z * o.y,
+            self.z * o.x - self.x * o.z,
+            self.x * o.y - self.y * o.x,
+        )
+    }
+
+    pub fn is_finite(self) -> bool {
+        self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
+    }
+}
+
+impl Add for Vec3 {
+    type Output = Vec3;
+    fn add(self, o: Vec3) -> Vec3 {
+        Vec3::new(self.x + o.x, self.y + o.y, self.z + o.z)
+    }
+}
+
+impl Sub for Vec3 {
+    type Output = Vec3;
+    fn sub(self, o: Vec3) -> Vec3 {
+        Vec3::new(self.x - o.x, self.y - o.y, self.z - o.z)
+    }
+}
+
+impl Mul<f32> for Vec3 {
+    type Output = Vec3;
+    fn mul(self, s: f32) -> Vec3 {
+        Vec3::new(self.x * s, self.y * s, self.z * s)
     }
 }
 
